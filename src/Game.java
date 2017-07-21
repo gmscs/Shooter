@@ -13,6 +13,7 @@ import java.applet.*;
 import java.io.IOException;
 import java.net.URL;
 import javax.imageio.ImageIO;
+import java.util.Random;
 
 public class Game extends Canvas implements KeyListener
 {
@@ -34,9 +35,10 @@ public class Game extends Canvas implements KeyListener
   
   private long lastTimeShot = 0;
   
-  private Map map;
+  public static Map map;
   public static Entity player;
   public static Bullet bullet;
+  public static Enemy enemy;
     
   public Game()
   {
@@ -81,9 +83,10 @@ public class Game extends Canvas implements KeyListener
     
     map = new Map();
     player = new Entity(1.5f, 1.5f, 10, 10, 0, user, map);
+    enemy = new Enemy(10.5f, 10.5f, 10, 10, 0, user, map);
     
     shooting = false;
-    bullet = new Bullet(player.getX(), player.getY(), player.getAngle(), 0, 0);
+    bullet = new Bullet(player.getX(), player.getY(), player.getAngle(), 0, 0, false);
     bullets = player.getBullets();
     reload = 30;
     numToShoot = 1;
@@ -107,6 +110,7 @@ public class Game extends Canvas implements KeyListener
       map.paint(g);
       player.paint(g);
       bullet.paint(g);
+      enemy.paint(g);
       
       g.dispose();
       bs.show();
@@ -151,10 +155,9 @@ public class Game extends Canvas implements KeyListener
     }
     if(shooting)
     {
-      if(System.currentTimeMillis() - lastTimeShot > 200)
+      if(System.currentTimeMillis() - lastTimeShot > 500)
       {
         player.shoot(1, 1);
-        shot = true;
         lastTimeShot = System.currentTimeMillis();
       }
     }
@@ -170,19 +173,13 @@ public class Game extends Canvas implements KeyListener
         player.move(dx * delta * 0.003f, dy * delta *0.003f);
       }
     }
-    /*if(shot)
-    {*/
-      ArrayList tmpBullets = player.getBullets();
-      for(int i = 0; i < tmpBullets.size(); i++)
-      {
-        Bullet tmpBullet = (Bullet) tmpBullets.get(i);
-        tmpBullet.moveForward(3);
-        /*if(map.validLocation(tmpBullet.getX(), tmpBullet.getY()))
-        {
-          shot = false;
-        }*/
-      }
-    /*}*/
+    ArrayList tmpBullets = player.getBullets();
+    for(int i = 0; i < tmpBullets.size(); i++)
+    {
+      Bullet tmpBullet = (Bullet) tmpBullets.get(i);
+      tmpBullet.moveForward(3);
+    }
+    enemy.move();
   }
   
   public void keyTyped(KeyEvent e)

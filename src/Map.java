@@ -83,25 +83,4 @@ public class Map
       data[(int) x][(int) y] == WALL || 
       data[(int) x][(int) y] == BOX;
   }
-
-  public boolean validLocation(float nx, float ny)
-  {
-    if (blocked(nx - size, ny - size)) 
-    {
-      return false;
-    }
-    if (blocked(nx + size, ny - size)) 
-    {
-      return false;
-    }
-    if (blocked(nx - size, ny + size)) 
-    {
-      return false;
-    }
-    if (blocked(nx + size, ny + size)) 
-    {
-      return false;
-    }
-    return true;
-  }
 }

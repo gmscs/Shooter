@@ -3,7 +3,7 @@ import java.awt.Image;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
-public class Entity
+public class Enemy
 {
   public float x;
   public float y;
@@ -17,7 +17,7 @@ public class Entity
   private Image person;
   private Map map;
 
-  public Entity(float x, float y, int width, int height, float angle, Image person, Map map)
+  public Enemy(float x, float y, int width, int height, float angle, Image person, Map map)
   {
     this.x = x;
     this.y = y;
@@ -76,20 +76,18 @@ public class Entity
     this.angle = angle;
   }
   
-  public boolean move(float dx, float dy)
+  public void move()
   {
-    float nx = x + dx;
-    float ny = y + dy;
-    
-    if(!map.blocked(nx, ny))
-    {    
-      x = nx;
-      y = ny;
-      
-      angle = (float) (Math.atan2(dy, dx) - (Math.PI / 2));
-      return true;
+    double dx = Game.player.getX() - x;
+    double dy = Game.player.getY() - y;
+    angle = (float) (Math.atan2(dy, dx) - (Math.PI / 2));
+    if(dx > 1 || dx < -1 || dy > 1 || dy < -1)
+    {
+      float direction = (float) (Math.atan2(dy, dx));
+      float speed = 0.009f;
+      x += speed * Math.cos(direction);
+      y += speed * Math.sin(direction);
     }
-    return false;
   }
   
   public void paint(Graphics2D p)
@@ -100,20 +98,5 @@ public class Entity
     p.rotate(angle, xp, yp);
     p.drawImage(person, (int) (xp - 10), (int) (yp - 10), null);
     p.rotate(-angle, xp, yp);
-  }
-  
-  public void shoot(int load, int amount)
-  {
-    for(int i=0; i < amount; i++)
-    {
-      Game.bullet.setX(((int)(map.TILE_SIZE * x)));
-      Game.bullet.setY(((int)(map.TILE_SIZE * y)));
-      Game.bullet.setAngle((float) (Game.player.getAngle() + (Math.PI / 2)));
-      Game.bullet.setWidth(5);
-      Game.bullet.setHeight(5);
-      
-      bullets.add(new Bullet(Game.bullet.getX(), Game.bullet.getY(), Game.bullet.getAngle(), Game.bullet.getWidth(), Game.bullet.getHeight(), Game.bullet.getHit()));
-    }
-    reloadTime = load;
   }
 }

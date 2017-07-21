@@ -10,19 +10,18 @@ public class Bullet
   private float angle;
   private int width;
   private int height;
+  public boolean hit;
   
-  private Entity player;
-  private ArrayList bullets;
   private Game game;
-  private Map map;
   
-  public Bullet(float x, float y, float angle, int width, int height)
+  public Bullet(float x, float y, float angle, int width, int height, boolean hit)
   {
     this.x = x;
     this.y = y;
     this.angle = angle;
     this.width = width;
     this.height = height;
+    this.hit = hit;
   }
   
   public float getX()
@@ -50,6 +49,11 @@ public class Bullet
     return height;
   }
   
+  public boolean getHit()
+  {
+    return hit;
+  }
+  
   public void setX(float x)
   {
     this.x = x;
@@ -74,22 +78,44 @@ public class Bullet
   {
     this.height = height;
   }
+  
+  public void setHit(boolean hit)
+  {
+    this.hit = hit;
+  }
 
   public void paint(Graphics2D g)
   {
     ArrayList bullets = Game.player.getBullets();
-
     for(int i = 0; i < bullets.size(); i++)
     {
       Bullet tmpBullet = (Bullet) bullets.get(i);
-      g.setColor(new Color(255, 255, 0));
-      g.fillRect((int) tmpBullet.getX(), (int) tmpBullet.getY(), tmpBullet.getWidth(), tmpBullet.getHeight());
+      if(tmpBullet.getHit() == false)
+      {
+	g.setColor(new Color(255, 255, 0));
+	g.fillRect((int) tmpBullet.getX(), (int) tmpBullet.getY(), tmpBullet.getWidth(), tmpBullet.getHeight());
+      }
+      else 
+      {
+	bullets.remove(tmpBullet);
+      }
     }
   }
 
   public void moveForward(int speed)
   {
-    x += Math.cos(angle)*speed;
-    y += Math.sin(angle)*speed;
+    float tmpx = x;
+    float tmpy = y;
+    tmpx += Math.cos(angle)*speed;
+    tmpy += Math.sin(angle)*speed;
+    
+    if(!Game.map.blocked(tmpx/Game.map.TILE_SIZE, tmpy/Game.map.TILE_SIZE)) {
+      x = tmpx;
+      y = tmpy;
+    }
+    else 
+    {
+      this.setHit(true);
+    }
   }
 }
