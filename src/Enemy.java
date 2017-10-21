@@ -1,102 +1,93 @@
 import java.awt.Graphics2D;
 import java.awt.Image;
-import java.awt.Rectangle;
-import java.util.ArrayList;
 
-public class Enemy
+class Enemy
 {
-  public float x;
-  public float y;
-  public float angle;
-  private int reloadTime;
-  private int width;
-  private int height;
-  
-  private ArrayList bullets;
-  
-  private Image person;
-  private Map map;
+	private float x;
+	private float y;
+	private float angle;
+	private boolean hit;
+	private int health;
 
-  public Enemy(float x, float y, int width, int height, float angle, Image person, Map map)
-  {
-    this.x = x;
-    this.y = y;
-    this.width = width;
-    this.height = height;
-    this.angle = angle;
-    this.person = person;
-    this.map = map;
-    
-    bullets = new ArrayList();
-    reloadTime = 0;
-  }
-  
-  public float getX()
-  {
-    return x;
-  }
-  
-  public float getY()
-  {
-    return y;
-  }
-  
-  public float getAngle()
-  {
-    return angle;
-  }
-  
-  public int getWidth()
-  {
-    return width;
-  }
-  
-  public int getHeight()
-  {
-    return height;
-  }
-  
-  public ArrayList getBullets()
-  {
-    return bullets;
-  }
+	private Image person;
+	private Map map;
 
-  public void setX(float x)
-  {
-    this.x = x;
-  }
+	Enemy(float x, float y, float angle, Image person, Map map, int health, boolean hit)
+	{
+		this.x = x;
+		this.y = y;
+		this.angle = angle;
+		this.person = person;
+		this.map = map;
+		this.health = health;
+		this.hit = hit;
+	}
   
-  public void setY(float y)
-  {
-    this.y = y;
-  }
+	float getX()
+	{
+		return x;
+	}
+  
+	float getY()
+	{
+		return y;
+	}
+  
+	int getHealth()
+	{
+		return health;
+	}
 
-  public void setAngle(float angle)
-  {
-    this.angle = angle;
-  }
+	boolean getHit()
+	{
+		return hit;
+	}	
+
+	void setHealth(int health)
+	{
+		this.health = health;
+	}	
+
+	void setHit(boolean hit)
+	{
+		this.hit = hit;
+	}
   
-  public void move()
-  {
-    double dx = Game.player.getX() - x;
-    double dy = Game.player.getY() - y;
-    angle = (float) (Math.atan2(dy, dx) - (Math.PI / 2));
-    if(dx > 1 || dx < -1 || dy > 1 || dy < -1)
-    {
-      float direction = (float) (Math.atan2(dy, dx));
-      float speed = 0.009f;
-      x += speed * Math.cos(direction);
-      y += speed * Math.sin(direction);
-    }
-  }
-  
-  public void paint(Graphics2D p)
-  {
-    int xp = (int) (map.TILE_SIZE * x);
-    int yp = (int) (map.TILE_SIZE * y);
-            
-    p.rotate(angle, xp, yp);
-    p.drawImage(person, (int) (xp - 10), (int) (yp - 10), null);
-    p.rotate(-angle, xp, yp);
-  }
+	void move()
+	{
+		double dx = Game.player.getX() - x;
+		double dy = Game.player.getY() - y;
+		angle = (float) (Math.atan2(dy, dx) - (Math.PI / 2));
+		if(dx > 1 || dx < -1 || dy > 1 || dy < -1)
+		{
+			float direction = (float) (Math.atan2(dy, dx));
+			float speed = 0.009f;
+			double nx = x + speed * Math.cos(direction);
+			double ny = y + speed * Math.sin(direction);
+			if(!map.blocked((float) nx, (float) ny)) {   
+				x = (float)nx;
+				y = (float)ny;
+			}
+		}
+		else {
+            Game.player.setHealth(Game.player.getHealth() - 5);
+		}
+	}
+
+	void paint(Graphics2D m)
+	{
+		for(int i = 0; i < Game.map.getEnemies().size(); i++) {
+			Enemy en = (Enemy) Game.map.getEnemies().get(i);
+			if(!en.getHit()) {
+				int xp = (int) (map.TILE_SIZE * en.getX());
+				int yp = (int) (map.TILE_SIZE * en.getY());
+			
+				m.rotate(angle, xp, yp);
+				m.drawImage(person, (int) (xp - 10), (int) (yp - 10), null);
+				m.rotate(-angle, xp, yp);
+			}
+			else
+				Game.map.getEnemies().remove(en);
+		}
+	}
 }
